@@ -2,7 +2,7 @@ package test
 
 import (
 	"fmt"
-	"goini"
+	"github.com/lroyia/goini"
 	"testing"
 )
 
