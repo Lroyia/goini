@@ -1,32 +1,32 @@
 # goini
 
-go语言下简单的ini配置文件读取实现
+A simple implementation of ini reader with golang.
 
-## 安装方法
+## Install
 
 ```bash
 go get github.com/Lroyia/goini
 ```
 
-## 使用方法
+## How to use
 
-1、加载文件
+1、load file
 ```go
-// 加载文件
+// load file
 conf, err := goini.Read("test.ini")
 ```
 
-2、读取section下某个键值
+2、get value of specify key in section
 ```go
 value := conf.GetValueBySection("ina", "mat")
 ```
 
-3、读取section下所有键值
+3、get all item in section
 ```go
 items := conf.GetAllItemInSection("ina")
 ```
 
-4、读取第一个成功匹配key的值
+4、get value of key which first match
 ```go
 conf.GetValueByItem("mat")
 ```
