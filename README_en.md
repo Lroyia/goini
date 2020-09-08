@@ -5,7 +5,7 @@ A simple implementation of ini reader with golang.
 ## Install
 
 ```bash
-go get github.com/Lroyia/goini
+go get github.com/lroyia/goini
 ```
 
 ## How to use

@@ -5,7 +5,7 @@ go语言下简单的ini配置文件读取实现
 ## 安装方法
 
 ```bash
-go get github.com/Lroyia/goini
+go get github.com/lroyia/goini
 ```
 
 ## 使用方法
