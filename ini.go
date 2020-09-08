@@ -17,16 +17,16 @@ import (
  * 项
  */
 type Item struct {
-	key string
-	value string
+	Key string
+	Value string
 }
 
 /**
  * 分部
  */
 type Section struct {
-	key string
-	items map[string]*Item
+	Key string
+	Items map[string]*Item
 }
 
 /**
@@ -35,7 +35,7 @@ type Section struct {
 type Config struct {
 	allSections map[string]*Section
 	allItems []*Item
-	filePath string
+	FilePath string
 }
 
 /**
@@ -80,9 +80,9 @@ func Read(filePath string) (*Config, error) {
 		// is section
 		if strings.Index(each, "[") == 0 && strings.LastIndex(each, "]") == length-1{
 			curSection = new(Section)
-			curSection.items = make(map[string]*Item)
-			curSection.key = strings.Replace(strings.Replace(each, "[", "", 1), "]", "", 1)
-			allSections[curSection.key] = curSection
+			curSection.Items = make(map[string]*Item)
+			curSection.Key = strings.Replace(strings.Replace(each, "[", "", 1), "]", "", 1)
+			allSections[curSection.Key] = curSection
 		}else{
 			// may be is item
 			if strings.Index(each, "=") < 0{
@@ -93,11 +93,11 @@ func Read(filePath string) (*Config, error) {
 			value := keyValue[1]
 
 			curItem := new(Item)
-			curItem.key = key
-			curItem.value = value
+			curItem.Key = key
+			curItem.Value = value
 
 			if curSection != nil{
-				curSection.items[curItem.key] = curItem
+				curSection.Items[curItem.Key] = curItem
 			}
 
 			allItems = append(allItems, curItem)
@@ -105,7 +105,7 @@ func Read(filePath string) (*Config, error) {
 	}
 
 	c := new(Config)
-	c.filePath = filePath
+	c.FilePath = filePath
 	c.allSections = allSections
 	c.allItems = allItems
 
@@ -118,9 +118,9 @@ func Read(filePath string) (*Config, error) {
 func (receiver *Config) GetValueBySection(section string, item string) string {
 	curSection := receiver.allSections[section]
 	if curSection != nil{
-		curItem := curSection.items[item]
+		curItem := curSection.Items[item]
 		if curItem != nil{
-			return curItem.value
+			return curItem.Value
 		}
 	}
 	return ""
@@ -131,8 +131,8 @@ func (receiver *Config) GetValueBySection(section string, item string) string {
  */
 func (receiver *Config) GetValueByItem(item string) string{
 	for i := range receiver.allItems {
-		if strings.EqualFold(receiver.allItems[i].key, item){
-			return receiver.allItems[i].value
+		if strings.EqualFold(receiver.allItems[i].Key, item){
+			return receiver.allItems[i].Value
 		}
 	}
 	return ""
@@ -144,7 +144,7 @@ func (receiver *Config) GetValueByItem(item string) string{
 func (receiver *Config) GetAllItemInSection(section string) map[string]*Item {
 	items := receiver.allSections[section]
 	if items != nil{
-		return items.items
+		return items.Items
 	}
 	return nil
 }
