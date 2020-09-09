@@ -9,6 +9,7 @@
 package goini
 
 import (
+	"errors"
 	"io/ioutil"
 	"strings"
 )
@@ -17,7 +18,7 @@ import (
  * 项
  */
 type Item struct {
-	Key string
+	Key   string
 	Value string
 }
 
@@ -25,7 +26,7 @@ type Item struct {
  * 分部
  */
 type Section struct {
-	Key string
+	Key   string
 	Items map[string]*Item
 }
 
@@ -34,8 +35,8 @@ type Section struct {
  */
 type Config struct {
 	allSections map[string]*Section
-	allItems []*Item
-	FilePath string
+	allItems    []*Item
+	FilePath    string
 }
 
 /**
@@ -55,11 +56,11 @@ func Read(filePath string) (*Config, error) {
 
 	// 换行符判定
 	lineSeparator := "\r\n" // window
-	if strings.Index(content, "\r") > -1{
-		if strings.Index(content, "\n") < 0{
+	if strings.Index(content, "\r") > -1 {
+		if strings.Index(content, "\n") < 0 {
 			lineSeparator = "\r" // mac
 		}
-	}else if strings.Index(content, "\n") > -1{
+	} else if strings.Index(content, "\n") > -1 {
 		lineSeparator = "\n" // linux
 	}
 
@@ -77,16 +78,33 @@ func Read(filePath string) (*Config, error) {
 			continue
 		}
 
+		idx := strings.Index(each, "#")
+		if idx == 0 {
+			continue
+		}
+
 		// is section
-		if strings.Index(each, "[") == 0 && strings.LastIndex(each, "]") == length-1{
+		if strings.Index(each, "[") == 0 && strings.LastIndex(each, "]") == length-1 {
+			// 注释位置错误
+			if idx > 0 && idx != length-1 {
+				return nil, errors.New("语法错误：第" + string(rune(i+1)) + "行的注释符位置错误")
+			}
 			curSection = new(Section)
 			curSection.Items = make(map[string]*Item)
 			curSection.Key = strings.Replace(strings.Replace(each, "[", "", 1), "]", "", 1)
 			allSections[curSection.Key] = curSection
-		}else{
+		} else {
 			// may be is item
-			if strings.Index(each, "=") < 0{
+			idxEq := strings.Index(each, "=")
+			if idxEq < 0 {
 				continue
+			}
+			if idx > -1 {
+				if idxEq > idx {
+					return nil, errors.New("语法错误：第" + string(rune(i+1)) + "行的注释符位置错误")
+				}
+				// 剪掉注释部分
+				each = each[0:idx]
 			}
 			keyValue := strings.SplitN(each, "=", 2)
 			key := keyValue[0]
@@ -96,7 +114,7 @@ func Read(filePath string) (*Config, error) {
 			curItem.Key = key
 			curItem.Value = value
 
-			if curSection != nil{
+			if curSection != nil {
 				curSection.Items[curItem.Key] = curItem
 			}
 
@@ -117,9 +135,9 @@ func Read(filePath string) (*Config, error) {
  */
 func (receiver *Config) GetValueBySection(section string, item string) string {
 	curSection := receiver.allSections[section]
-	if curSection != nil{
+	if curSection != nil {
 		curItem := curSection.Items[item]
-		if curItem != nil{
+		if curItem != nil {
 			return curItem.Value
 		}
 	}
@@ -129,9 +147,9 @@ func (receiver *Config) GetValueBySection(section string, item string) string {
 /**
  * getValue by item
  */
-func (receiver *Config) GetValueByItem(item string) string{
+func (receiver *Config) GetValueByItem(item string) string {
 	for i := range receiver.allItems {
-		if strings.EqualFold(receiver.allItems[i].Key, item){
+		if strings.EqualFold(receiver.allItems[i].Key, item) {
 			return receiver.allItems[i].Value
 		}
 	}
@@ -143,7 +161,7 @@ func (receiver *Config) GetValueByItem(item string) string{
  */
 func (receiver *Config) GetAllItemInSection(section string) map[string]*Item {
 	items := receiver.allSections[section]
-	if items != nil{
+	if items != nil {
 		return items.Items
 	}
 	return nil
